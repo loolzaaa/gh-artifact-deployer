@@ -1,0 +1,11 @@
+{
+    "artifactApi": "https://api.github.com/repos/username/reponame/actions/artifacts",
+    "artifactName": "example-latest",
+    "applicationFileName": "example.jar",
+    "updatedPrefix": "example-",
+    "updatedSuffix": ".jar",
+    "service": {
+        "enabled": true,
+        "name": "example.service"
+    }
+}
