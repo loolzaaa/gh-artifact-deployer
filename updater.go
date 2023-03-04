@@ -60,6 +60,8 @@ func main() {
 
 	var tokenFlag = flag.String("t", "", "personal access token")
 	var configFile = flag.String("c", "updater.json", "configuration file name")
+	var serverMode = flag.Bool("server", false, "server mode")
+	var serverPort = flag.Int("p", 7400, "server port")
 	flag.Parse()
 
 	fmt.Print("Loading configuration... ")
@@ -81,6 +83,30 @@ func main() {
 	githubApiHeaders["Authorization"] = []string{"Bearer " + token}
 	fmt.Println("Done.")
 
+	if *serverMode {
+		http.HandleFunc("/update", func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodPost {
+				defer func(w *http.ResponseWriter) {
+					if r := recover(); r != nil {
+						fmt.Printf("ERROR: %v\n", r)
+						(*w).WriteHeader(http.StatusInternalServerError)
+						io.WriteString(*w, fmt.Sprintf("ERROR: %v\n", r))
+					}
+				}(&w)
+				updateApplication()
+				io.WriteString(w, "OK\n")
+			} else {
+				w.WriteHeader(http.StatusMethodNotAllowed)
+			}
+		})
+		err = http.ListenAndServe(fmt.Sprintf("localhost:%d", *serverPort), nil)
+		checkError(err, nil)
+	} else {
+		updateApplication()
+	}
+}
+
+func updateApplication() {
 	var artifactList ArtifactList
 	fmt.Print("Requesting list of artifacts... ")
 	resp := doRequest("GET", config.ArtifactApi, &githubApiHeaders, 200)
