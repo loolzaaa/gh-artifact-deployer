@@ -215,7 +215,7 @@ func updateApplication() {
 		fmt.Println("Done.")
 	}
 
-	fmt.Println("Monster Cake economy application successfully updated!")
+	fmt.Println("Application successfully updated!")
 }
 
 func runSystemctlCommand(args ...string) {
